@@ -22,10 +22,17 @@ app.get('/health', (req, res) => res.json({ status: "ok", service: "kiambu-east-
 // TEST IF DB IS CONNECTED
 app.get('/test-db', async (req, res) => {
   try {
-    const result = await db.query('SELECT NOW()');
+    console.log("Trying to connect with:", {
+      host: process.env.DB_HOST,
+      db: process.env.DB_NAME,
+      user: process.env.DB_USER,
+      port: process.env.DB_PORT
+    });
+    const result = await pool.query('SELECT NOW()');
     res.json({ status: "DB Connected", time: result.rows[0].now });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
+  } catch (err) {
+    console.error(err);
+    res.json({ status: "DB Error", error: err.message, code: err.code });
   }
 });
 
