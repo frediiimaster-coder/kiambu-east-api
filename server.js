@@ -1,55 +1,52 @@
-const express = require('express');
-const axios = require('axios');
-const { Pool } = require('pg');
-const app = express();
-app.use(express.json());
-
-// CONNECT TO REAL POSTGRES ON RENDER
-import { Pool } from 'pg';
 import express from 'express';
 import cors from 'cors';
+import { Pool } from 'pg';
 
 const app = express();
+const PORT = process.env.PORT || 10000;
+
 app.use(cors());
 app.use(express.json());
 
+// Connect to Postgres using DATABASE_URL
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false } // Required for Render
 });
-// BASIC ROUTES
-app.get('/', (req, res) => res.json({ status: "Kiambu East API Running" }));
-app.get('/health', (req, res) => res.json({ status: "ok", service: "kiambu-east-api" }));
 
-// TEST IF DB IS CONNECTED
+// Test DB connection
 app.get('/test-db', async (req, res) => {
   try {
-    console.log("Trying to connect with:", {
-      host: process.env.DB_HOST,
-      db: process.env.DB_NAME,
-      user: process.env.DB_USER,
-      port: process.env.DB_PORT
-    });
     const result = await pool.query('SELECT NOW()');
     res.json({ status: "DB Connected", time: result.rows[0].now });
   } catch (err) {
     console.error(err);
-    res.json({ status: "DB Error", error: err.message, code: err.code });
+    res.json({ status: "DB Error", error: err.message });
   }
 });
 
-// CREATE TABLES - USE ONCE THEN DELETE THIS ROUTE
+// Setup DB Tables
 app.get('/setup-db', async (req, res) => {
   try {
-    await db.query(`CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, phone VARCHAR(20) UNIQUE, coins INT DEFAULT 0, trial_used BOOLEAN DEFAULT false);`);
-    await db.query(`CREATE TABLE IF NOT EXISTS transactions (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id), checkout_id VARCHAR(100), amount INT, coins INT, status VARCHAR(20) DEFAULT 'pending', mpesa_receipt VARCHAR(50), created_at TIMESTAMP DEFAULT NOW());`);
-    res.json({ status: "Tables Created Successfully" });
-  } catch(e) {
-    res.status(500).json({ error: e.message });
+    await pool.query(`
+      CREATE TABLE IF NOT EXISTS farmers (
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(100),
+        phone VARCHAR(20) UNIQUE,
+        location VARCHAR(100)
+      );
+    `);
+    res.json({ status: "Tables created successfully" });
+  } catch (err) {
+    res.json({ status: "Setup Error", error: err.message });
   }
 });
 
-// PUT YOUR M-PESA STK PUSH CODE HERE
+// Root route
+app.get('/', (req, res) => {
+  res.json({ message: "Kiambu East API is running" });
+});
 
-const PORT = process.env.PORT || 10000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});
