@@ -4,7 +4,7 @@ const { Pool } = require('pg');
 const app = express();
 app.use(express.json());
 
-// REAL POSTGRES DB
+// CONNECT TO REAL POSTGRES ON RENDER
 const pool = new Pool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
@@ -15,11 +15,11 @@ const pool = new Pool({
 });
 const db = { query: (text, params) => pool.query(text, params) };
 
-// HEALTH CHECK
+// BASIC ROUTES
 app.get('/', (req, res) => res.json({ status: "Kiambu East API Running" }));
 app.get('/health', (req, res) => res.json({ status: "ok", service: "kiambu-east-api" }));
 
-// TEST DB CONNECTION
+// TEST IF DB IS CONNECTED
 app.get('/test-db', async (req, res) => {
   try {
     const result = await db.query('SELECT NOW()');
@@ -29,7 +29,7 @@ app.get('/test-db', async (req, res) => {
   }
 });
 
-// TEMP ROUTE TO CREATE TABLES - DELETE AFTER USING
+// CREATE TABLES - USE ONCE THEN DELETE THIS ROUTE
 app.get('/setup-db', async (req, res) => {
   try {
     await db.query(`CREATE TABLE IF NOT EXISTS users (id SERIAL PRIMARY KEY, phone VARCHAR(20) UNIQUE, coins INT DEFAULT 0, trial_used BOOLEAN DEFAULT false);`);
@@ -40,7 +40,7 @@ app.get('/setup-db', async (req, res) => {
   }
 });
 
-// YOUR M-PESA CODE GOES HERE... keep your existing /api/mpesa routes
+// PUT YOUR M-PESA STK PUSH CODE HERE
 
 const PORT = process.env.PORT || 10000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
