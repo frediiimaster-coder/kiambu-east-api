@@ -5,9 +5,18 @@ const app = express();
 app.use(express.json());
 
 // CONNECT TO REAL POSTGRES ON RENDER
-postgresql://east_user:RWuJEo0rezl1SBoHZsbaqOBiyUviMr8X@dpg-d9hpslepbkes738vb3qg-a/east_dp
-const db = { query: (text, params) => pool.query(text, params) };
+import { Pool } from 'pg';
+import express from 'express';
+import cors from 'cors';
 
+const app = express();
+app.use(cors());
+app.use(express.json());
+
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: { rejectUnauthorized: false } // Required for Render
+});
 // BASIC ROUTES
 app.get('/', (req, res) => res.json({ status: "Kiambu East API Running" }));
 app.get('/health', (req, res) => res.json({ status: "ok", service: "kiambu-east-api" }));
