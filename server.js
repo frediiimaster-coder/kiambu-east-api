@@ -5,14 +5,7 @@ const app = express();
 app.use(express.json());
 
 // CONNECT TO REAL POSTGRES ON RENDER
-const pool = new Pool({
-  host: process.env.DB_HOST,
-  user: process.env.DB_USER,
-  password: process.env.DB_PASS,
-  database: process.env.DB_NAME,
-  port: process.env.DB_PORT,
-  ssl: { rejectUnauthorized: false }
-});
+postgresql://east_user:RWuJEo0rezl1SBoHZsbaqOBiyUviMr8X@dpg-d9hpslepbkes738vb3qg-a/east_dp
 const db = { query: (text, params) => pool.query(text, params) };
 
 // BASIC ROUTES
