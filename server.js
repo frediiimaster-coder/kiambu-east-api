@@ -23,4 +23,8 @@ app.post('/api/mpesa/callback', async (req, res) => {
   }
   res.json({ ResultCode: 0, ResultDesc: "Success" });
 });
+// Health check route
+app.get('/health', (req, res) => {
+  res.json({ status: "ok", service: "kiambu-east-api" });
+});
 const PORT = process.env.PORT || 10000;app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
