@@ -29,6 +29,15 @@ app.get('/health', (req, res) => {
 // YOUR M-PESA CODE GOES HERE... keep your existing /api/mpesa routes
 
 const PORT = process.env.PORT || 10000;
+app.get('/setup-db', async (req, res) => {
+  try {
+    await db.query(`CREATE TABLE users (id SERIAL PRIMARY KEY, phone VARCHAR(20) UNIQUE, coins INT DEFAULT 0, trial_used BOOLEAN DEFAULT false);`);
+    await db.query(`CREATE TABLE transactions (id SERIAL PRIMARY KEY, user_id INT REFERENCES users(id), checkout_id VARCHAR(100), amount INT, coins INT, status VARCHAR(20) DEFAULT 'pending', mpesa_receipt VARCHAR(50), created_at TIMESTAMP DEFAULT NOW());`);
+    res.json({ status: "Tables Created" });
+  } catch(e) {
+    res.json({ error: e.message });
+  }
+});
 app.listen(PORT, () => console.log('Server running on port', PORT));
 app.get('/health', (req, res) => {
   res.json({ status: "ok", service: "kiambu-east-api" });
