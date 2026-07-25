@@ -1,56 +1,44 @@
 const express = require('express');
 const cors = require('cors');
+const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(cors());
 app.use(express.json());
+app.use(express.static('public')); // to serve admin.html
 
-// FAKE DATABASE - for now
 let news = [];
 let members = [];
 let events = [];
 
-// 1. HOME ROUTE
-app.get('/', (req, res) => {
-  res.json({ message: 'Kiambu East API is running!' });
-});
-
-// 2. HEALTH ROUTE
-app.get('/health', (req, res) => {
-  res.json({ status: 'OK' });
-});
-
-// 3. NEWS ROUTES
-app.get('/news', (req, res) => {
-  res.json(news);
-});
+// NEWS
+app.get('/news', (req, res) => res.json(news));
 app.post('/news', (req, res) => {
-  const newItem = { id: Date.now(), ...req.body };
+  const newItem = { id: Date.now(),...req.body };
   news.push(newItem);
   res.json(newItem);
 });
 
-// 4. MEMBERS ROUTES
-app.get('/members', (req, res) => {
-  res.json(members);
-});
+// MEMBERS
+app.get('/members', (req, res) => res.json(members));
 app.post('/members', (req, res) => {
-  const newMember = { id: Date.now(), ...req.body };
-  members.push(newMember);
-  res.json(newMember);
+  const newItem = { id: Date.now(),...req.body };
+  members.push(newItem);
+  res.json(newItem);
 });
 
-// 5. EVENTS ROUTES
-app.get('/events', (req, res) => {
-  res.json(events);
-});
+// EVENTS
+app.get('/events', (req, res) => res.json(events));
 app.post('/events', (req, res) => {
-  const newEvent = { id: Date.now(), ...req.body };
-  events.push(newEvent);
-  res.json(newEvent);
+  const newItem = { id: Date.now(),...req.body };
+  events.push(newItem);
+  res.json(newItem);
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+// Homepage
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
 });
+
+app.listen(PORT, () => console.log(`Server running on ${PORT}`));
