@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Kiambu East Admin</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+   .card { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; }
+    input, button { padding: 10px; margin: 5px 0; width: 95%; }
+    button { background: #006400; color: white; border: none; cursor: pointer; }
+    h2 { color: #006400; }
+  </style>
+</head>
+<body>
+  <h1>Kiambu East Admin</h1>
+
+  <div class="card">
+    <h2>Add News</h2>
+    <input id="n_title" placeholder="News Title">
+    <input id="n_date" placeholder="Date">
+    <input id="n_location" placeholder="Location">
+    <button onclick="add('news', ['n_title','n_date','n_location'])">Add News</button>
+  </div>
+
+  <div class="card">
+    <h2>Add Member</h2>
+    <input id="m_name" placeholder="Member Name">
+    <input id="m_location" placeholder="Location">
+    <button onclick="add('members', ['m_name','m_location'])">Add Member</button>
+  </div>
+
+  <div class="card">
+    <h2>Add Event</h2>
+    <input id="e_title" placeholder="Event Title">
+    <input id="e_date" placeholder="Date">
+    <button onclick="add('events', ['e_title','e_date'])">Add Event</button>
+  </div>
+
+  <p id="result"></p>
+
+  <script>
+    const API = window.location.origin;
+    function add(type, fields) {
+      const data = {};
+      fields.forEach(f => data[f.split('_')[1]] = document.getElementById(f).value);
+      fetch(API + "/" + type, {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify(data)
+      }).then(() => {
+        document.getElementById('result').innerText = type + " Added!";
+      });
+    }
+  </script>
+</body>
+</html>
