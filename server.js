@@ -43,4 +43,13 @@ app.get('/rentals', (req, res) => {
   res.status(200).json(rentals);
 });
 
+// 3. GET - GET ONE RENTAL BY ID
+app.get('/rentals/:id', (req, res) => {
+  const rental = rentals.find(r => r.id == req.params.id);
+  if (!rental) return res.status(404).json({ error: "Rental not found" });
+  res.status(200).json(rental);
+});
+
+const PORT = process.env.PORT || 10000;
+app.listen(PORT, () => console.log(`Kiambu East Rental API running on ${PORT}`));
 //
