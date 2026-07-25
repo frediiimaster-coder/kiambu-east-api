@@ -1,44 +1,54 @@
 const express = require('express');
 const cors = require('cors');
-const path = require('path');
 const app = express();
-const PORT = process.env.PORT || 3000;
 
-app.use(cors());
-app.use(express.json());
-app.use(express.static('public')); // to serve admin.html
+// MIDDLEWARE
+app.use(cors()); // allows your App Inventor app to connect
+app.use(express.json()); // lets us read JSON from your app
 
-let news = [];
-let members = [];
-let events = [];
+// "DATABASE" - for now we store in memory
+let rentals = []; 
 
-// NEWS
-app.get('/news', (req, res) => res.json(news));
-app.post('/news', (req, res) => {
-  const newItem = { id: Date.now(),...req.body };
-  news.push(newItem);
-  res.json(newItem);
-});
-
-// MEMBERS
-app.get('/members', (req, res) => res.json(members));
-app.post('/members', (req, res) => {
-  const newItem = { id: Date.now(),...req.body };
-  members.push(newItem);
-  res.json(newItem);
-});
-
-// EVENTS
-app.get('/events', (req, res) => res.json(events));
-app.post('/events', (req, res) => {
-  const newItem = { id: Date.now(),...req.body };
-  events.push(newItem);
-  res.json(newItem);
-});
-
-// Homepage
+// TEST ROUTE
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'admin.html'));
+  res.send('Kiambu East Rental API is Live ✅');
 });
 
-app.listen(PORT, () => console.log(`Server running on ${PORT}`));
+// 1. POST - SAVE NEW RENTAL FROM YOUR APP
+app.post('/rentals', (req, res) => {
+  const { title, price, location, contact } = req.body;
+  
+  if (!title || !price || !location || !contact) {
+    return res.status(400).json({ error: "All fields required" });
+  }
+
+  const newRental = {
+    id: Date.now(),
+    title,
+    price,
+    location, 
+    contact,
+    bedrooms: "1",
+    bathrooms: "1",
+    verified: false,
+    createdAt: new Date()
+  };
+
+  rentals.push(newRental);
+  res.status(201).json({ message: "Rental added successfully", data: newRental });
+});
+
+// 2. GET - GET ALL RENTALS FOR HOME SCREEN
+app.get('/rentals', (req, res) => {
+  res.status(200).json(rentals);
+});
+
+// 3. GET - GET ONE RENTAL BY ID
+app.get('/rentals/:id', (req, res) => {
+  const rental = rentals.find(r => r.id == req.params.id);
+  if (!rental) return res.status(404).json({ error: "Rental not found" });
+  res.status(200).json(rental);
+});
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Kiambu East Rental API running on ${PORT}`));
